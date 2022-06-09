@@ -9,6 +9,8 @@ import (
 	"sort"
 )
 
+// Event is presenting user's email which API they called, which method, and how long this API used
+// this is our custom field
 type Event struct {
 	User     string  `json:"user"`
 	URLPath  string  `json:"resource"`
@@ -16,16 +18,19 @@ type Event struct {
 	Method   string  `json:"method"`
 }
 
+// Http provides by loggly, now we only need IP Address
 type Http struct {
 	IpAddress string `json:"clientHost"`
 }
 
+// Record combine Event & Http
 type Record struct {
 	Event `json:"json"`
 	Http  `json:"http"`
 	Time  int64
 }
 
+// regexPath return string only include '/XXXXXXXXX'
 func (r *Record) regexPath() string {
 	_, err := regexp.MatchString("^\\/\\w+", r.URLPath)
 	if err != nil {
@@ -72,6 +77,7 @@ func main() {
 	}
 }
 
+// fetchData load data from file
 func fetchData(path string) error {
 	file, err := os.Open(path)
 
@@ -108,6 +114,7 @@ func fetchData(path string) error {
 	return nil
 }
 
+// initData categorize data into different categories.
 func initData() {
 	tempUsers := make(map[string]bool)
 	tempIPs := make(map[string]bool)
@@ -134,6 +141,7 @@ func initData() {
 	}
 }
 
+// analysis calculates data and show result to stdout.
 func analysis(key string) {
 	var sum float64
 	var count int
